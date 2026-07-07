@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>육아랩 — 육아휴직급여 계산기 & 6+6 부부 시뮬레이터 (2026 최신)</title>
+<meta name="description" content="육아휴직급여를 월별로 계산하고, 부부 6+6 시나리오(동시·순차)까지 시뮬레이션하세요. 2025 개편(사후지급금 폐지, 월차별 상한 250만) 완전 반영.">
+<style>
+  :root {
+    --ink: #111111;
+    --paper: #ffffff;
+    --accent: #ff4d00;
+    --gray: #f4f4f4;
+    --mid: #757575;
+    --line: #e0e0e0;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Pretendard", "Noto Sans KR", sans-serif;
+    color: var(--ink);
+    background: var(--paper);
+    line-height: 1.6;
+  }
+  .wrap { max-width: 880px; margin: 0 auto; padding: 0 20px; }
+
+  /* Header */
+  header { border-bottom: 2px solid var(--ink); }
+  .nav { display: flex; justify-content: space-between; align-items: center; padding: 18px 0; }
+  .logo { font-size: 22px; font-weight: 900; letter-spacing: -0.5px; }
+  .logo span { color: var(--accent); }
+  .nav a { color: var(--ink); text-decoration: none; font-weight: 700; font-size: 14px; margin-left: 20px; }
+
+  /* Hero */
+  .hero { padding: 64px 0 40px; }
+  .hero h1 {
+    font-size: clamp(34px, 6vw, 58px);
+    font-weight: 900;
+    letter-spacing: -2px;
+    line-height: 1.12;
+  }
+  .hero h1 em { font-style: normal; color: var(--accent); }
+  .hero p { margin-top: 18px; font-size: 17px; color: var(--mid); max-width: 600px; }
+  .fact-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 26px; }
+  .fact {
+    border: 2px solid var(--ink); padding: 10px 14px; font-size: 13px; font-weight: 800;
+  }
+  .fact b { color: var(--accent); }
+
+  /* Sections */
+  section { padding: 48px 0; }
+  .section-label {
+    display: inline-block; background: var(--ink); color: #fff;
+    font-size: 12px; font-weight: 800; letter-spacing: 1.5px;
+    padding: 6px 12px; margin-bottom: 20px; text-transform: uppercase;
+  }
+  h2 { font-size: 28px; font-weight: 900; letter-spacing: -1px; margin-bottom: 8px; }
+  .sub { color: var(--mid); margin-bottom: 28px; font-size: 15px; }
+
+  /* Mode toggle */
+  .mode-row { display: flex; gap: 0; margin-bottom: 28px; border: 2px solid var(--ink); }
+  .mode-btn {
+    flex: 1; padding: 14px 10px; font-size: 15px; font-weight: 900; text-align: center;
+    background: #fff; color: var(--ink); border: none; cursor: pointer; letter-spacing: -0.3px;
+  }
+  .mode-btn.on { background: var(--ink); color: #fff; }
+  .mode-btn.on b { color: var(--accent); }
+
+  /* Form */
+  .calc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px 24px; }
+  @media (max-width: 640px) { .calc-grid { grid-template-columns: 1fr; } }
+  .field label { display: block; font-size: 13px; font-weight: 800; margin-bottom: 6px; }
+  .field input, .field select {
+    width: 100%; padding: 13px 14px; font-size: 16px;
+    border: 2px solid var(--ink); background: #fff; font-weight: 600;
+  }
+  .field input:focus, .field select:focus { outline: 3px solid var(--accent); outline-offset: -1px; }
+  .hint { font-size: 12px; color: var(--mid); margin-top: 4px; }
+  .ym-row { display: flex; gap: 8px; }
+  .ym-row select { flex: 1; }
+  .check-row { display: flex; align-items: center; gap: 8px; margin-top: 8px; }
+  .check-row input { width: 18px; height: 18px; accent-color: var(--accent); }
+  .check-row label { font-size: 14px; font-weight: 700; }
+  .person-head {
+    grid-column: 1 / -1; font-size: 14px; font-weight: 900; letter-spacing: 1px;
+    border-bottom: 2px solid var(--ink); padding-bottom: 8px; margin-top: 10px;
+  }
+  .person-head span { color: var(--accent); }
+
+  /* 통상임금 도우미 */
+  details.helper { grid-column: 1 / -1; border: 2px dashed var(--mid); padding: 0; }
+  details.helper summary {
+    cursor: pointer; padding: 12px 14px; font-size: 14px; font-weight: 800; list-style: none;
+  }
+  details.helper summary::before { content: "+ "; color: var(--accent); font-weight: 900; }
+  details.helper[open] summary::before { content: "− "; }
+  .helper-body { padding: 4px 14px 16px; }
+  .helper-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+  @media (max-width: 640px) { .helper-grid { grid-template-columns: 1fr; } }
+  .helper-result { margin-top: 12px; font-size: 14px; font-weight: 800; }
+  .helper-result b { color: var(--accent); font-size: 18px; }
+  .helper-apply {
+    margin-top: 10px; padding: 8px 18px; background: var(--ink); color: #fff;
+    font-size: 13px; font-weight: 800; border: none; cursor: pointer;
+  }
+  .helper-apply:hover { background: var(--accent); }
+
+  .btn {
+    display: inline-block; margin-top: 28px; padding: 16px 44px;
+    background: var(--ink); color: #fff; font-size: 17px; font-weight: 900;
+    border: none; cursor: pointer; letter-spacing: 0.5px;
+    transition: background .15s;
+  }
+  .btn:hover { background: var(--accent); }
+
+  /* Results */
+  #result { display: none; }
+  .result-hero {
+    background: var(--ink); color: #fff; padding: 36px 32px; margin-bottom: 28px;
+  }
+  .result-hero .amount { font-size: clamp(36px, 7vw, 56px); font-weight: 900; letter-spacing: -2px; color: var(--accent); }
+  .result-hero .amount-label { font-size: 14px; font-weight: 700; opacity: .7; margin-bottom: 4px; }
+  .result-detail { margin-top: 16px; font-size: 14px; opacity: .85; }
+  .result-detail div { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,.15); }
+
+  .retro-box {
+    border: 2px solid var(--accent); padding: 18px 20px; margin-bottom: 28px;
+    font-size: 14px;
+  }
+  .retro-box b { color: var(--accent); }
+  .warn-box {
+    background: var(--gray); border-left: 4px solid var(--accent);
+    padding: 14px 16px; margin-bottom: 28px; font-size: 13px; font-weight: 700;
+  }
+
+  /* Timeline */
+  .tl { margin-bottom: 8px; }
+  .tl-row { display: grid; grid-template-columns: 84px 1fr 110px; gap: 10px; align-items: center; padding: 5px 0; border-bottom: 1px solid var(--line); }
+  .tl-ym { font-size: 12px; font-weight: 800; }
+  .tl-barwrap { background: var(--gray); height: 26px; position: relative; }
+  .tl-bar { height: 100%; background: var(--ink); display: flex; }
+  .tl-bar .seg-me { background: var(--ink); height: 100%; }
+  .tl-bar .seg-sp { background: var(--accent); height: 100%; }
+  .tl-amt { font-size: 13px; font-weight: 900; text-align: right; letter-spacing: -0.3px; }
+  .tl-legend { display: flex; gap: 16px; margin: 14px 0 24px; font-size: 12px; font-weight: 700; color: var(--mid); }
+  .tl-legend i { display: inline-block; width: 12px; height: 12px; margin-right: 5px; vertical-align: -1px; }
+  .tl-legend .l-me i { background: var(--ink); }
+  .tl-legend .l-sp i { background: var(--accent); }
+
+  .tl-table { width: 100%; border-collapse: collapse; font-size: 13px; margin-bottom: 8px; }
+  .tl-table th, .tl-table td { border: 1px solid var(--line); padding: 7px 8px; text-align: right; }
+  .tl-table th { background: var(--ink); color: #fff; font-weight: 800; text-align: center; }
+  .tl-table td:first-child { text-align: center; font-weight: 800; }
+  .tag66 { display: inline-block; background: var(--accent); color: #fff; font-size: 10px; font-weight: 900; padding: 1px 5px; margin-left: 4px; vertical-align: 1px; }
+  .tagold { display: inline-block; background: var(--mid); color: #fff; font-size: 10px; font-weight: 900; padding: 1px 5px; margin-left: 4px; vertical-align: 1px; }
+
+  .scenario-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
+  .scenario {
+    border: 2px solid var(--ink); padding: 24px 20px; position: relative;
+  }
+  .scenario.best { background: var(--ink); color: #fff; }
+  .scenario .tag {
+    position: absolute; top: -12px; left: 16px; background: var(--accent);
+    color: #fff; font-size: 11px; font-weight: 800; padding: 3px 10px; letter-spacing: 1px;
+  }
+  .scenario h3 { font-size: 16px; font-weight: 900; margin-bottom: 10px; }
+  .scenario .s-amount { font-size: 26px; font-weight: 900; letter-spacing: -1px; }
+  .scenario.best .s-amount { color: var(--accent); }
+  .scenario .s-save { font-size: 13px; font-weight: 700; color: var(--accent); margin-top: 4px; }
+  .scenario p { font-size: 13px; margin-top: 10px; color: var(--mid); }
+  .scenario.best p { color: rgba(255,255,255,.75); }
+
+  .disclaimer {
+    margin-top: 28px; padding: 16px; background: var(--gray);
+    font-size: 12px; color: var(--mid); border-left: 4px solid var(--accent);
+  }
+
+  /* Guide */
+  .guide-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px; }
+  .guide-card { border: 2px solid var(--ink); padding: 24px 20px; text-decoration: none; color: var(--ink); transition: all .15s; display: block; }
+  .guide-card:hover { background: var(--ink); color: #fff; }
+  .guide-card .num { font-size: 13px; font-weight: 800; color: var(--accent); }
+  .guide-card h3 { font-size: 17px; font-weight: 900; margin: 6px 0; letter-spacing: -0.5px; }
+  .guide-card p { font-size: 13px; color: var(--mid); }
+  .guide-card:hover p { color: rgba(255,255,255,.75); }
+
+  /* Game */
+  .game-box { border: 3px solid var(--ink); padding: 40px 24px; text-align: center; }
+  .game-box .game-title { font-size: 20px; font-weight: 900; margin-bottom: 6px; }
+  .game-box .game-sub { font-size: 14px; color: var(--mid); margin-bottom: 24px; }
+  #gameArea {
+    height: 220px; display: flex; align-items: center; justify-content: center;
+    font-size: 20px; font-weight: 900; cursor: pointer; user-select: none;
+    background: var(--gray); transition: background .1s; letter-spacing: -0.5px;
+  }
+  #gameArea.waiting { background: var(--ink); color: #fff; }
+  #gameArea.go { background: var(--accent); color: #fff; }
+  .game-stats { margin-top: 16px; font-size: 14px; font-weight: 700; }
+  .game-stats span { color: var(--accent); }
+
+  footer { border-top: 2px solid var(--ink); padding: 28px 0; margin-top: 48px; font-size: 13px; color: var(--mid); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap nav">
+    <div class="logo">육아<span>랩</span></div>
+    <nav>
+      <a href="#calc">계산기</a>
+      <a href="#guide">가이드</a>
+      <a href="#game">쉬어가기</a>
+    </nav>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <div class="hero">
+    <h1>육아휴직 급여,<br>신청 전에 <em>부부 시나리오부터</em><br>돌려보세요</h1>
+    <p>같은 휴직도 누가·언제·몇 개월 쓰느냐에 따라 가구 수령액이 수백만 원 달라집니다. 30초 입력으로 월별 입금액과 6+6 시나리오를 비교해보세요.</p>
+    <div class="fact-row">
+      <div class="fact">사후지급금 25% <b>폐지</b> — 전액 매월 지급</div>
+      <div class="fact">7개월차부터 상한 <b>160만원</b>으로 감소</div>
+      <div class="fact">급여는 <b>매달 직접 신청</b> · 12개월 지나면 소멸</div>
+    </div>
+  </div>
+
+  <section id="calc">
+    <span class="section-label">Calculator</span>
+    <h2>육아휴직급여 계산기</h2>
+    <p class="sub">2025.1.1 개편 반영 (월차별 상한 250/200/160만 · 사후지급금 폐지 · 6+6 첫 달 250만) · 결과는 참고용입니다</p>
+
+    <div class="mode-row">
+      <button type="button" class="mode-btn on" id="modeSolo" onclick="setMode('solo')">혼자 사용</button>
+      <button type="button" class="mode-btn" id="modeCouple" onclick="setMode('couple')">부부 함께 사용 <b>(6+6)</b></button>
+    </div>
+
+    <div class="calc-grid">
+      <div class="person-head" id="meHead">본인</div>
+      <div class="field">
+        <label for="meWage">월 통상임금 (만원)</label>
+        <input type="text" id="meWage" inputmode="numeric" placeholder="예: 350">
+        <div class="hint">기본급 + 고정수당 기준 · 세전 · 모르면 아래 도우미 사용</div>
+      </div>
+      <div class="field">
+        <label>휴직 시작</label>
+        <div class="ym-row">
+          <select id="meStartY"></select>
+          <select id="meStartM"></select>
+        </div>
+      </div>
+      <div class="field">
+        <label for="meMonths">휴직 기간</label>
+        <select id="meMonths"></select>
+        <div class="hint">13개월 이상은 부모 각 3개월+ 사용(또는 한부모) 시 가능</div>
+      </div>
+      <div class="field" id="fSingle">
+        <div class="check-row">
+          <input type="checkbox" id="singleParent">
+          <label for="singleParent">한부모 (첫 3개월 상한 300만원)</label>
+        </div>
+      </div>
+
+      <div id="spouseFields" style="display:none; grid-column: 1 / -1;">
+        <div class="calc-grid">
+          <div class="person-head">배우자 <span>— 6+6 판정에 사용됩니다</span></div>
+          <div class="field">
+            <label for="spWage">배우자 월 통상임금 (만원)</label>
+            <input type="text" id="spWage" inputmode="numeric" placeholder="예: 300">
+          </div>
+          <div class="field">
+            <label>배우자 휴직 시작</label>
+            <div class="ym-row">
+              <select id="spStartY"></select>
+              <select id="spStartM"></select>
+            </div>
+          </div>
+          <div class="field">
+            <label for="spMonths">배우자 휴직 기간</label>
+            <select id="spMonths"></select>
+          </div>
+          <div class="field">
+            <label>자녀 출생 (예정)</label>
+            <div class="ym-row">
+              <select id="birthY"></select>
+              <select id="birthM"></select>
+            </div>
+            <div class="hint">6+6은 부모 모두 생후 18개월 내 시작해야 적용됩니다</div>
+          </div>
+        </div>
+      </div>
+
+      <details class="helper">
+        <summary>통상임금을 모르겠다면 — 간단 추정 도우미</summary>
+        <div class="helper-body">
+          <div class="helper-grid">
+            <div class="field">
+              <label for="hBase">월 기본급 (만원)</label>
+              <input type="text" id="hBase" inputmode="numeric" placeholder="예: 280">
+            </div>
+            <div class="field">
+              <label for="hFixed">매달 고정 수당 (만원)</label>
+              <input type="text" id="hFixed" inputmode="numeric" placeholder="식대·직책수당 등">
+            </div>
+            <div class="field">
+              <label for="hBonus">정기 상여 연간 합계 (만원)</label>
+              <input type="text" id="hBonus" inputmode="numeric" placeholder="예: 600">
+            </div>
+          </div>
+          <div class="helper-result">추정 월 통상임금: <b id="hResult">0만원</b></div>
+          <button type="button" class="helper-apply" onclick="applyHelper()">본인 통상임금에 적용</button>
+          <div class="hint" style="margin-top:8px;">통상임금 = 정기적·일률적·고정적으로 지급되는 임금. 성과급·연장수당·실비 식대는 제외됩니다. 정확한 금액은 급여명세서 또는 인사팀에서 확인하세요.</div>
+        </div>
+      </details>
+    </div>
+
+    <button class="btn" onclick="calculate()">급여 계산하기</button>
+
+    <div id="result">
+      <div class="result-hero">
+        <div class="amount-label" id="mainLabel">휴직 기간 총 수령 예상액</div>
+        <div class="amount" id="mainAmount">0원</div>
+        <div class="result-detail" id="detailRows"></div>
+      </div>
+
+      <div class="retro-box" id="retroBox" style="display:none;"></div>
+      <div class="warn-box" id="warnBox" style="display:none;"></div>
+
+      <span class="section-label">Timeline</span>
+      <h2>월별 입금 타임라인</h2>
+      <p class="sub" id="tlSub">육아휴직급여만 표시합니다 (근로소득 제외) · 단위: 만원</p>
+      <div class="tl" id="tlBars"></div>
+      <div class="tl-legend" id="tlLegend">
+        <span class="l-me"><i></i>본인</span>
+        <span class="l-sp" id="legendSp" style="display:none;"><i></i>배우자</span>
+      </div>
+      <div style="overflow-x:auto;">
+        <table class="tl-table" id="tlTable"></table>
+      </div>
+
+      <span class="section-label" style="margin-top:32px;">Scenarios</span>
+      <h2>시나리오 비교</h2>
+      <p class="sub">사용 방식에 따라 가구 총 수령액이 이렇게 달라집니다</p>
+      <div class="scenario-grid" id="scenarios"></div>
+
+      <div class="disclaimer">
+        ⚠️ 본 계산 결과는 이해를 돕기 위한 <strong>참고용 추정치</strong>입니다. 급여는 휴직 개시일 기준 통상임금으로 산정되며, 개시일이 속한 달의 일할 계산, 회사 규정, 고용보험 가입 이력 등에 따라 실제 지급액과 다를 수 있습니다. 6+6 적용 요건(생후 18개월, 부모 모두 사용)은 일 단위로 판정되므로 경계에 걸친 경우 고용센터(☎1350)에 확인하세요.
+      </div>
+    </div>
+  </section>
+
+  <section id="guide">
+    <span class="section-label">Guide</span>
+    <h2>육아휴직급여 가이드</h2>
+    <p class="sub">신청 과정에서 실제로 부딪히는 이슈들을 정리했습니다</p>
+    <div class="guide-grid">
+      <a class="guide-card" href="guide01-66-sunchak.html">
+        <div class="num">GUIDE 01</div>
+        <h3>6+6 부모육아휴직제, 순차 사용의 진실</h3>
+        <p>아내 먼저 쓰고 남편이 나중에 써도 되는 이유, 먼저 쓴 사람이 차액을 소급받는 구조.</p>
+      </a>
+      <a class="guide-card" href="guide02-wolcha-sanghan.html">
+        <div class="num">GUIDE 02</div>
+        <h3>7개월차부터 급여가 줄어드는 이유</h3>
+        <p>월차별 상한 250→200→160만원의 구조, 절벽에 대비하는 가계 설계법.</p>
+      </a>
+      <a class="guide-card" href="guide03-tongsang-imgeum.html">
+        <div class="num">GUIDE 03</div>
+        <h3>통상임금, 뭐가 포함되고 뭐가 빠질까</h3>
+        <p>식대·상여·직책수당의 포함 기준, 인사팀도 헷갈리는 판단 원칙 3가지.</p>
+      </a>
+      <a class="guide-card" href="guide04-sahu-jigeupgeum.html">
+        <div class="num">GUIDE 04</div>
+        <h3>사후지급금 폐지 — 나도 해당될까</h3>
+        <p>2025년 폐지의 정확한 의미, 2024년에 휴직을 시작한 사람의 경과 규정.</p>
+      </a>
+      <a class="guide-card" href="guide05-18gaewol-yeonjang.html">
+        <div class="num">GUIDE 05</div>
+        <h3>육아휴직 1년 6개월, 아무나 못 쓴다</h3>
+        <p>연장 조건(부모 각 3개월+)과 연장 구간의 급여, 한부모·중증장애아동 특례.</p>
+      </a>
+      <a class="guide-card" href="guide06-sincheong-bangbeob.html">
+        <div class="num">GUIDE 06</div>
+        <h3>급여 신청, 자동으로 안 들어옵니다</h3>
+        <p>매달 신청해야 하는 이유, 12개월 시효, 첫 달 입금이 늦는 이유와 신청 루틴.</p>
+      </a>
+    </div>
+  </section>
+
+  <section id="game">
+    <span class="section-label">Break Time</span>
+    <h2>쉬어가기 — 반응속도 테스트</h2>
+    <p class="sub">육아 반사신경 점검. 화면이 주황색이 되는 순간 클릭!</p>
+    <div class="game-box">
+      <div id="gameArea" onclick="gameClick()">클릭해서 시작</div>
+      <div class="game-stats">
+        최근 기록: <span id="lastTime">-</span> &nbsp;|&nbsp; 최고 기록: <span id="bestTime">-</span>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<footer>
+  <div class="wrap">
+    육아랩 © 2026 · 본 사이트의 모든 계산 결과는 참고용이며 법적 효력이 없습니다 · 고용보험 상담 ☎1350
+  </div>
+</footer>
+
+<script>
+// ---------- 상수 (단위: 만원) ----------
+const NEW_ERA = 2025 * 12;            // 2025-01의 절대 월 인덱스 (y*12 + m-1)
+const CAP_66_2025 = [250, 250, 300, 350, 400, 450];
+const CAP_66_2024 = [200, 250, 300, 350, 400, 450];
+const FLOOR = 70;
+
+// ---------- 유틸 ----------
+function num(id) {
+  const v = document.getElementById(id).value.replace(/[^0-9]/g, '');
+  return v ? parseInt(v, 10) : 0;
+}
+function fmtMan(man) {
+  man = Math.round(man * 10) / 10;
+  if (man >= 10000) {
+    const eok = Math.floor(man / 10000);
+    const rest = Math.round((man % 10000) * 10) / 10;
+    return rest > 0 ? `${eok}억 ${rest.toLocaleString()}만원` : `${eok}억원`;
+  }
+  return `${man.toLocaleString()}만원`;
+}
+function absYm(y, m) { return y * 12 + (m - 1); }
+function ymLabel(abs) { return `${Math.floor(abs / 12)}.${String(abs % 12 + 1).padStart(2, '0')}`; }
+
+// 입력 콤마 자동
+['meWage','spWage','hBase','hFixed','hBonus'].forEach(id => {
+  document.getElementById(id).addEventListener('input', e => {
+    const raw = e.target.value.replace(/[^0-9]/g, '');
+    e.target.value = raw ? parseInt(raw,10).toLocaleString() : '';
+    if (id.startsWith('h')) updateHelper();
+  });
+});
+
+// 년/월 셀렉트 채우기
+function fillYm(yId, mId, yFrom, yTo, defY, defM) {
+  const ySel = document.getElementById(yId), mSel = document.getElementById(mId);
+  for (let y = yFrom; y <= yTo; y++) ySel.add(new Option(y + '년', y));
+  for (let m = 1; m <= 12; m++) mSel.add(new Option(m + '월', m));
+  ySel.value = defY; mSel.value = defM;
+}
+const now = new Date();
+const defY = now.getMonth() === 11 ? now.getFullYear() + 1 : now.getFullYear();
+const defM = now.getMonth() === 11 ? 1 : now.getMonth() + 2;
+fillYm('meStartY','meStartM', 2023, 2028, defY, defM);
+fillYm('spStartY','spStartM', 2023, 2028, defY, defM);
+fillYm('birthY','birthM', 2023, 2028, now.getFullYear(), now.getMonth() + 1);
+['meMonths','spMonths'].forEach(id => {
+  const sel = document.getElementById(id);
+  for (let i = 1; i <= 18; i++) sel.add(new Option(i + '개월', i));
+  sel.value = id === 'meMonths' ? 12 : 6;
+});
+
+// ---------- 모드 ----------
+let mode = 'solo';
+function setMode(m) {
+  mode = m;
+  document.getElementById('modeSolo').className = 'mode-btn' + (m === 'solo' ? ' on' : '');
+  document.getElementById('modeCouple').className = 'mode-btn' + (m === 'couple' ? ' on' : '');
+  document.getElementById('spouseFields').style.display = m === 'couple' ? '' : 'none';
+  document.getElementById('fSingle').style.display = m === 'solo' ? '' : 'none';
+  document.getElementById('meHead').textContent = m === 'couple' ? '본인 (부모 A)' : '본인';
+}
+
+// ---------- 통상임금 도우미 ----------
+function updateHelper() {
+  const est = num('hBase') + num('hFixed') + Math.round(num('hBonus') / 12);
+  document.getElementById('hResult').textContent = est.toLocaleString() + '만원';
+}
+function applyHelper() {
+  const est = num('hBase') + num('hFixed') + Math.round(num('hBonus') / 12);
+  if (est > 0) document.getElementById('meWage').value = est.toLocaleString();
+}
+
+// ---------- 급여 계산 엔진 ----------
+// 한 사람의 월별 급여. matched: 6+6 적용 개월 수(0이면 일반)
+// 반환: [{i, abs, amount, deferred, rule}]
+function calcPerson(wage, startAbs, months, matched, singleParent) {
+  const rows = [];
+  for (let i = 1; i <= months; i++) {
+    const abs = startAbs + (i - 1);
+    const isNew = abs >= NEW_ERA;
+    let amount, deferred = 0, rule;
+    if (i <= matched) {
+      const cap = (isNew ? CAP_66_2025 : CAP_66_2024)[i - 1];
+      amount = Math.min(wage, cap);
+      rule = '6+6';
+    } else if (!isNew) {
+      amount = Math.min(wage * 0.8, 150);
+      rule = '구제도';
+    } else if (singleParent && i <= 3) {
+      amount = Math.min(wage, 300);
+      rule = '한부모';
+    } else if (i <= 3) {
+      amount = Math.min(wage, 250);
+      rule = '1~3개월차';
+    } else if (i <= 6) {
+      amount = Math.min(wage, 200);
+      rule = '4~6개월차';
+    } else {
+      amount = Math.min(wage * 0.8, 160);
+      rule = '7개월차~';
+    }
+    amount = Math.max(amount, FLOOR);
+    if (rule === '구제도') deferred = amount * 0.25; // 구제도 일반급여만 25% 사후지급
+    rows.push({ i, abs, amount, deferred, rule });
+  }
+  return rows;
+}
+
+// 6+6 매칭 개월 수 판정
+function matchedMonths(meMonths, spMonths, meStart, spStart, birthAbs) {
+  if (!spMonths) return 0;
+  const meOk = meStart - birthAbs <= 18 && meStart >= birthAbs;
+  const spOk = spStart - birthAbs <= 18 && spStart >= birthAbs;
+  if (!meOk || !spOk) return 0;
+  return Math.min(meMonths, spMonths, 6);
+}
+
+// 가구 전체 계산
+function calcHousehold(p) {
+  // p: {meWage, meStart, meMonths, spWage, spStart, spMonths, birth, singleParent, couple}
+  let matched = 0, eligible = false;
+  if (p.couple) {
+    matched = matchedMonths(p.meMonths, p.spMonths, p.meStart, p.spStart, p.birth);
+    eligible = matched > 0;
+  }
+  const me = calcPerson(p.meWage, p.meStart, p.meMonths, matched, !p.couple && p.singleParent);
+  const sp = p.couple ? calcPerson(p.spWage, p.spStart, p.spMonths, matched, false) : [];
+  const meTotal = me.reduce((s, r) => s + r.amount, 0);
+  const spTotal = sp.reduce((s, r) => s + r.amount, 0);
+  const deferred = me.reduce((s, r) => s + r.deferred, 0) + sp.reduce((s, r) => s + r.deferred, 0);
+
+  // 소급 차액: 먼저 시작한 사람이 두 번째 개시 전에 받은 6+6 개월분 = 일반급여로 선지급 → 차액 소급
+  let retro = 0, retroWho = '';
+  if (eligible && p.meStart !== p.spStart) {
+    const firstIsMe = p.meStart < p.spStart;
+    const first = firstIsMe ? me : sp;
+    const fWage = firstIsMe ? p.meWage : p.spWage;
+    const secondStart = firstIsMe ? p.spStart : p.meStart;
+    const general = calcPerson(fWage, firstIsMe ? p.meStart : p.spStart, first.length, 0, false);
+    first.forEach((r, idx) => {
+      if (r.rule === '6+6' && r.abs < secondStart) retro += r.amount - general[idx].amount;
+    });
+    retroWho = firstIsMe ? '본인' : '배우자';
+  }
+  return { me, sp, meTotal, spTotal, total: meTotal + spTotal, deferred, matched, eligible, retro, retroWho };
+}
+
+// ---------- 화면 ----------
+function calculate() {
+  const p = {
+    couple: mode === 'couple',
+    meWage: num('meWage'),
+    meStart: absYm(+document.getElementById('meStartY').value, +document.getElementById('meStartM').value),
+    meMonths: +document.getElementById('meMonths').value,
+    spWage: num('spWage'),
+    spStart: absYm(+document.getElementById('spStartY').value, +document.getElementById('spStartM').value),
+    spMonths: +document.getElementById('spMonths').value,
+    birth: absYm(+document.getElementById('birthY').value, +document.getElementById('birthM').value),
+    singleParent: document.getElementById('singleParent').checked,
+  };
+  if (!p.meWage) { alert('본인 통상임금을 입력해주세요.'); return; }
+  if (p.couple && !p.spWage) { alert('배우자 통상임금을 입력해주세요.'); return; }
+
+  const r = calcHousehold(p);
+
+  // 결과 히어로
+  document.getElementById('result').style.display = 'block';
+  document.getElementById('mainLabel').textContent = p.couple ? '부부 합산 총 수령 예상액' : '휴직 기간 총 수령 예상액';
+  document.getElementById('mainAmount').textContent = fmtMan(r.total);
+  let rows = '';
+  if (p.couple) {
+    rows += `<div><span>본인 (${p.meMonths}개월)</span><strong>${fmtMan(r.meTotal)}</strong></div>`;
+    rows += `<div><span>배우자 (${p.spMonths}개월)</span><strong>${fmtMan(r.spTotal)}</strong></div>`;
+    rows += `<div><span>6+6 부모육아휴직제</span><strong>${r.eligible ? `적용 — 각자 첫 ${r.matched}개월 통상임금 100%` : '미적용'}</strong></div>`;
+  } else {
+    rows += `<div><span>월 평균 수령액</span><strong>${fmtMan(r.meTotal / p.meMonths)}</strong></div>`;
+    rows += `<div><span>휴직 전 통상임금 대비</span><strong>${Math.round(r.meTotal / (p.meWage * p.meMonths) * 100)}%</strong></div>`;
+  }
+  if (r.deferred > 0) rows += `<div><span>이 중 사후지급금 (복직 6개월 후 지급, 2024년분)</span><strong>${fmtMan(r.deferred)}</strong></div>`;
+  document.getElementById('detailRows').innerHTML = rows;
+
+  // 소급 안내
+  const retroBox = document.getElementById('retroBox');
+  if (r.retro > 0) {
+    retroBox.style.display = '';
+    retroBox.innerHTML = `<b>소급 차액 ${fmtMan(r.retro)}</b> — 먼저 휴직한 ${r.retroWho}은(는) 처음엔 일반 급여로 받다가, 나중에 시작한 쪽이 휴직을 개시하면 6+6 기준과의 차액을 <b>소급으로 돌려받습니다</b>. 위 총액에는 이미 포함되어 있습니다.`;
+  } else retroBox.style.display = 'none';
+
+  // 경고
+  const warns = [];
+  if (p.couple && !r.eligible) {
+    warns.push('6+6이 적용되지 않았습니다 — 부모 모두 자녀 생후 18개월 이내에 휴직을 시작해야 합니다. 출생·시작 시점을 확인하세요.');
+  }
+  const needExt = (m) => m > 12;
+  if (!p.couple && needExt(p.meMonths) && !p.singleParent) {
+    warns.push('13개월 이상 휴직은 부모가 각각 3개월 이상 사용했거나 한부모·중증장애아동 부모인 경우에만 가능합니다 (2025.2.23 시행).');
+  }
+  if (p.couple && ((needExt(p.meMonths) && p.spMonths < 3) || (needExt(p.spMonths) && p.meMonths < 3))) {
+    warns.push('13개월 이상 연장은 배우자도 3개월 이상 사용해야 가능합니다.');
+  }
+  const warnBox = document.getElementById('warnBox');
+  if (warns.length) { warnBox.style.display = ''; warnBox.innerHTML = '⚠️ ' + warns.join('<br>⚠️ '); }
+  else warnBox.style.display = 'none';
+
+  renderTimeline(p, r);
+  renderScenarios(p, r);
+  document.getElementById('result').scrollIntoView({ behavior: 'smooth' });
+}
+
+function renderTimeline(p, r) {
+  document.getElementById('legendSp').style.display = p.couple ? '' : 'none';
+  const byAbs = {};
+  r.me.forEach(row => { (byAbs[row.abs] = byAbs[row.abs] || {}).me = row; });
+  r.sp.forEach(row => { (byAbs[row.abs] = byAbs[row.abs] || {}).sp = row; });
+  const keys = Object.keys(byAbs).map(Number).sort((a, b) => a - b);
+  const maxSum = Math.max(...keys.map(k => (byAbs[k].me?.amount || 0) + (byAbs[k].sp?.amount || 0)));
+
+  document.getElementById('tlBars').innerHTML = keys.map(k => {
+    const meAmt = byAbs[k].me?.amount || 0, spAmt = byAbs[k].sp?.amount || 0;
+    const sum = meAmt + spAmt;
+    return `<div class="tl-row">
+      <div class="tl-ym">${ymLabel(k)}</div>
+      <div class="tl-barwrap"><div class="tl-bar" style="width:${sum / maxSum * 100}%">
+        ${meAmt ? `<div class="seg-me" style="width:${meAmt / sum * 100}%"></div>` : ''}
+        ${spAmt ? `<div class="seg-sp" style="width:${spAmt / sum * 100}%"></div>` : ''}
+      </div></div>
+      <div class="tl-amt">${sum.toLocaleString()}만원</div>
+    </div>`;
+  }).join('');
+
+  const tagOf = rule => rule === '6+6' ? '<span class="tag66">6+6</span>'
+    : rule === '구제도' ? '<span class="tagold">\'24</span>'
+    : rule === '한부모' ? '<span class="tag66">한부모</span>' : '';
+  const cell = row => row ? `${row.amount.toLocaleString()}${tagOf(row.rule)}` : '<span style="color:var(--line)">—</span>';
+  let html = `<tr><th>월</th><th>본인</th>${p.couple ? '<th>배우자</th><th>합계</th>' : '<th>월차</th>'}</tr>`;
+  html += keys.map(k => {
+    const m = byAbs[k].me, s = byAbs[k].sp;
+    if (p.couple) {
+      return `<tr><td>${ymLabel(k)}</td><td>${cell(m)}</td><td>${cell(s)}</td><td><b>${((m?.amount || 0) + (s?.amount || 0)).toLocaleString()}</b></td></tr>`;
+    }
+    return `<tr><td>${ymLabel(k)}</td><td>${cell(m)}</td><td>${m ? m.i + '개월차 (' + m.rule + ')' : ''}</td></tr>`;
+  }).join('');
+  document.getElementById('tlTable').innerHTML = html;
+}
+
+function renderScenarios(p, r) {
+  const scenarios = [{ name: '지금 조건 그대로', total: r.total, desc: '입력하신 계획 기준입니다.' }];
+
+  if (p.couple) {
+    if (r.eligible) {
+      const alt = calcHousehold({ ...p, couple: true, spMonths: p.spMonths, birth: p.birth - 100 }); // 요건 불충족으로 강제
+      scenarios.push({ name: '6+6 없이 같은 계획이라면', total: alt.total, desc: '생후 18개월을 넘겨 시작해 6+6을 놓친 경우입니다. 시작 시점이 이만큼의 돈입니다.' });
+    }
+    if (p.spMonths < 6) {
+      const alt = calcHousehold({ ...p, spMonths: 6 });
+      scenarios.push({ name: `배우자 6개월로 늘리면`, total: alt.total, desc: '6+6 매칭이 최대(6개월)가 되어 부부 모두 상향 급여를 받습니다.' });
+    }
+    if (p.meMonths < 6) {
+      const alt = calcHousehold({ ...p, meMonths: 6 });
+      scenarios.push({ name: `본인 6개월로 늘리면`, total: alt.total, desc: '6+6 매칭 개월이 늘어 배우자 급여도 함께 올라갑니다.' });
+    }
+  } else {
+    const matched = Math.min(p.meMonths, 6);
+    const meWith66 = calcPerson(p.meWage, p.meStart, p.meMonths, matched, false).reduce((s, x) => s + x.amount, 0);
+    if (meWith66 > r.meTotal) {
+      scenarios.push({ name: '배우자도 함께 쓰면 (6+6)', total: meWith66, desc: `배우자가 6개월 이상 함께(또는 순차로) 사용하면 내 급여만 ${fmtMan(meWith66 - r.meTotal)} 늘어납니다. 배우자 급여는 별도로 추가됩니다.` });
+    }
+  }
+
+  const maxTotal = Math.max(...scenarios.map(x => x.total));
+  document.getElementById('scenarios').innerHTML = scenarios.map(sc => {
+    const gain = sc.total - r.total;
+    const isBest = sc.total === maxTotal && scenarios.length > 1 && sc.total > r.total;
+    return `<div class="scenario${isBest ? ' best' : ''}">
+      ${isBest ? '<span class="tag">BEST</span>' : ''}
+      <h3>${sc.name}</h3>
+      <div class="s-amount">${fmtMan(sc.total)}</div>
+      ${gain > 0 ? `<div class="s-save">▲ ${fmtMan(gain)} 더 받음</div>` : gain < 0 ? `<div class="s-save" style="color:var(--mid)">▼ ${fmtMan(-gain)} 덜 받음</div>` : ''}
+      <p>${sc.desc}</p>
+    </div>`;
+  }).join('');
+}
+
+// ---------- 반응속도 게임 ----------
+let gameState = 'idle';
+let gameTimer = null, goTime = 0, best = null;
+
+function gameClick() {
+  const area = document.getElementById('gameArea');
+  if (gameState === 'idle') {
+    gameState = 'waiting';
+    area.className = 'waiting';
+    area.textContent = '주황색이 되면 클릭하세요...';
+    gameTimer = setTimeout(() => {
+      gameState = 'go';
+      area.className = 'go';
+      area.textContent = '지금 클릭!';
+      goTime = performance.now();
+    }, 1200 + Math.random() * 2500);
+  } else if (gameState === 'waiting') {
+    clearTimeout(gameTimer);
+    gameState = 'idle';
+    area.className = '';
+    area.textContent = '너무 빨랐어요! 다시 클릭해서 시작';
+  } else if (gameState === 'go') {
+    const ms = Math.round(performance.now() - goTime);
+    gameState = 'idle';
+    area.className = '';
+    area.textContent = `${ms}ms! 다시 도전하려면 클릭`;
+    document.getElementById('lastTime').textContent = ms + 'ms';
+    if (best === null || ms < best) {
+      best = ms;
+      document.getElementById('bestTime').textContent = ms + 'ms';
+    }
+  }
+}
+</script>
+</body>
+</html>

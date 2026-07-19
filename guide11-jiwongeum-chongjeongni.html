@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>출산·육아 지원금 총정리 2026 — 첫해 얼마 받나 | 육아랩</title>
+<meta name="description" content="첫만남이용권·부모급여·아동수당 3종을 한 번에. 2026년 기준 금액과 첫해 총액, 0~2세 누적액을 자녀 순위별로 계산합니다. 신청 기한과 중복 수급 여부까지 정리했습니다.">
+<style>
+  :root { --ink: #111111; --paper: #ffffff; --accent: #ff4d00; --gray: #f4f4f4; --mid: #757575; --line: #e0e0e0; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, "Pretendard", "Noto Sans KR", sans-serif; color: var(--ink); background: var(--paper); line-height: 1.75; }
+  .wrap { max-width: 760px; margin: 0 auto; padding: 0 20px; }
+  header { border-bottom: 2px solid var(--ink); }
+  .nav { display: flex; justify-content: space-between; align-items: center; padding: 18px 0; }
+  .logo { font-size: 22px; font-weight: 900; letter-spacing: -0.5px; color: var(--ink); text-decoration: none; }
+  .logo span { color: var(--accent); }
+  .nav a { color: var(--ink); text-decoration: none; font-weight: 700; font-size: 14px; margin-left: 20px; }
+  .label { display: inline-block; background: var(--ink); color: #fff; font-size: 12px; font-weight: 800; letter-spacing: 1.5px; padding: 6px 12px; margin: 48px 0 20px; }
+  h1 { font-size: clamp(28px, 5vw, 42px); font-weight: 900; letter-spacing: -1.5px; line-height: 1.2; margin-bottom: 40px; }
+  article h2 { font-size: 22px; font-weight: 900; letter-spacing: -0.5px; margin: 40px 0 14px; padding-top: 8px; border-top: 2px solid var(--ink); }
+  article p { margin-bottom: 16px; font-size: 16px; }
+  article ul { margin: 0 0 16px 22px; }
+  article li { margin-bottom: 8px; font-size: 16px; }
+  article strong { font-weight: 800; }
+  article a { color: var(--accent); font-weight: 700; }
+  article table { width: 100%; border-collapse: collapse; margin: 0 0 16px; font-size: 14px; }
+  article th, article td { border: 2px solid var(--ink); padding: 10px 12px; text-align: left; }
+  article th { background: var(--ink); color: #fff; font-weight: 800; }
+  .formula { background: var(--gray); border-left: 4px solid var(--accent); padding: 14px 16px; font-weight: 800; font-size: 15px; }
+  .cta { margin: 48px 0; background: var(--ink); color: #fff; padding: 28px 24px; }
+  .cta h3 { font-size: 20px; font-weight: 900; margin-bottom: 6px; }
+  .cta p { font-size: 14px; opacity: .8; margin-bottom: 16px; }
+  .cta a { display: inline-block; background: var(--accent); color: #fff; text-decoration: none; font-weight: 900; padding: 12px 28px; font-size: 15px; }
+  .other { margin: 48px 0; }
+  .other h3 { font-size: 16px; font-weight: 900; margin-bottom: 12px; }
+  .other a { display: block; color: var(--ink); text-decoration: none; font-weight: 700; font-size: 14px; padding: 10px 0; border-bottom: 1px solid var(--line); }
+  .other a:hover { color: var(--accent); }
+  .disclaimer { margin: 32px 0; padding: 16px; background: var(--gray); font-size: 12px; color: var(--mid); border-left: 4px solid var(--accent); }
+  footer { border-top: 2px solid var(--ink); padding: 28px 0; margin-top: 48px; font-size: 13px; color: var(--mid); }
+  /* 계산기 */
+  .calc { border: 3px solid var(--ink); margin: 40px 0; }
+  .calc-head { background: var(--ink); color: #fff; padding: 14px 20px; font-weight: 900; font-size: 16px; letter-spacing: -0.3px; }
+  .calc-body { padding: 22px 20px; }
+  .calc-row { margin-bottom: 20px; }
+  .calc-row > span { display: block; font-size: 13px; font-weight: 800; margin-bottom: 8px; letter-spacing: -0.2px; }
+  .opts { display: flex; gap: 8px; flex-wrap: wrap; }
+  .opts button { flex: 1 1 auto; min-width: 120px; border: 2px solid var(--ink); background: #fff; color: var(--ink); font-family: inherit; font-weight: 800; font-size: 14px; padding: 11px 10px; cursor: pointer; }
+  .opts button[aria-pressed="true"] { background: var(--ink); color: #fff; }
+  .out { border-top: 2px solid var(--ink); padding-top: 18px; }
+  .out-line { display: flex; justify-content: space-between; align-items: baseline; font-size: 15px; padding: 7px 0; border-bottom: 1px solid var(--line); }
+  .out-line span:last-child { font-weight: 800; font-variant-numeric: tabular-nums; }
+  .out-total { display: flex; justify-content: space-between; align-items: baseline; margin-top: 14px; padding-top: 14px; border-top: 2px solid var(--ink); }
+  .out-total span:first-child { font-size: 15px; font-weight: 900; }
+  .out-total span:last-child { font-size: clamp(26px, 6vw, 34px); font-weight: 900; color: var(--accent); letter-spacing: -1px; font-variant-numeric: tabular-nums; }
+  .calc-note { font-size: 12px; color: var(--mid); margin-top: 14px; line-height: 1.6; }
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap nav">
+    <a class="logo" href="index.html">육아<span>랩</span></a>
+    <nav>
+      <a href="index.html#calc">계산기</a>
+      <a href="index.html#guide">가이드</a>
+    </nav>
+  </div>
+</header>
+<div class="wrap">
+  <span class="label">GUIDE 11</span>
+  <h1>출산·육아 지원금<br>총정리 — 첫해 얼마 받나</h1>
+  <article>
+
+<p>출산하면 나라에서 주는 돈은 크게 <strong>세 가지</strong>입니다. 첫만남이용권, 부모급여, 아동수당. 셋은 <strong>서로 중복해서 받을 수 있고</strong>, 성격도 지급 방식도 다릅니다. 그런데 각각 따로 안내되다 보니 "우리 아이 앞으로 얼마 받는 건지" 총액을 아는 사람이 의외로 적습니다. 2026년 기준으로 한 번에 정리했습니다.</p>
+
+<div class="calc">
+  <div class="calc-head">우리 아이 지원금 계산기</div>
+  <div class="calc-body">
+    <div class="calc-row">
+      <span>자녀 순위</span>
+      <div class="opts" id="optOrder">
+        <button type="button" data-v="1" aria-pressed="true">첫째</button>
+        <button type="button" data-v="2" aria-pressed="false">둘째 이상</button>
+      </div>
+    </div>
+    <div class="calc-row">
+      <span>계산 기간</span>
+      <div class="opts" id="optSpan">
+        <button type="button" data-v="1" aria-pressed="true">첫해 (0세)</button>
+        <button type="button" data-v="2" aria-pressed="false">0~2세 누적</button>
+      </div>
+    </div>
+    <div class="out">
+      <div class="out-line"><span>첫만남이용권 <em id="lblFirst" style="font-style:normal;color:#757575;font-size:13px"></em></span><span id="vFirst">—</span></div>
+      <div class="out-line"><span>부모급여 <em id="lblParent" style="font-style:normal;color:#757575;font-size:13px"></em></span><span id="vParent">—</span></div>
+      <div class="out-line"><span>아동수당 <em id="lblChild" style="font-style:normal;color:#757575;font-size:13px"></em></span><span id="vChild">—</span></div>
+      <div class="out-total"><span id="lblTotal">첫해 총액</span><span id="vTotal">—</span></div>
+    </div>
+    <p class="calc-note">2026년 기준 금액입니다. 어린이집·유치원을 이용하면 부모급여에서 보육료를 뺀 차액이 현금으로 지급됩니다. 비수도권·인구감소지역은 아동수당이 월 5천~2만원 추가될 수 있어 위 금액보다 늘어납니다(지자체별 상이).</p>
+  </div>
+</div>
+
+<h2>1. 첫만남이용권 — 태어나면 바로 한 번</h2>
+<ul>
+<li><strong>금액</strong> — 첫째 <strong>200만원</strong>, 둘째 이상 <strong>300만원</strong>. 출생아 1인당 1회 지급입니다.</li>
+<li><strong>형태</strong> — 현금이 아니라 <strong>국민행복카드 바우처 포인트</strong>로 들어옵니다.</li>
+<li><strong>사용처</strong> — 육아용품·병원비 등 대부분의 업종에서 쓸 수 있습니다(유흥·사행업종 등 일부 제외).</li>
+<li><strong>신청</strong> — 출생신고할 때 <strong>행복출산 원스톱 서비스</strong>로 다른 지원금과 함께 한 번에 신청하는 것이 가장 간단합니다.</li>
+</ul>
+
+<h2>2. 부모급여 — 첫 2년, 금액이 가장 큽니다</h2>
+<p class="formula">만 0세(0~11개월) 월 100만원 · 만 1세(12~23개월) 월 50만원 → 2년 합계 1,800만원</p>
+<ul>
+<li>세 가지 중 <strong>총액이 압도적으로 큽니다.</strong> 0세 1년만 해도 1,200만원입니다.</li>
+<li><strong>어린이집을 다니면</strong> 보육료 바우처로 먼저 지급되고, 부모급여액이 보육료보다 크면 <strong>차액만 현금</strong>으로 들어옵니다. 못 받는 게 아니라 지급 방식이 바뀌는 것입니다.</li>
+<li>⚠️ <strong>신청 기한이 가장 중요합니다.</strong> 출생일 포함 <strong>60일 이내</strong>에 신청하면 태어난 달부터 소급해 받습니다. 넘기면 <strong>신청한 달부터만</strong> 지급돼 지나간 달치는 사라집니다.</li>
+</ul>
+
+<h2>3. 아동수당 — 2026년부터 9세 미만으로 확대</h2>
+<ul>
+<li><strong>2026년부터 만 9세 미만</strong> 아동에게 월 <strong>10만원</strong>. 기존 8세 미만에서 1세 늘었습니다.</li>
+<li><strong>소득·재산과 무관</strong>하게 모두 받습니다.</li>
+<li>여기서 끝이 아닙니다 — <strong>2030년까지 매년 1세씩 올라 13세 미만</strong>까지 확대될 예정입니다.</li>
+<li>비수도권·인구감소지역 거주 아동은 월 <strong>5천~2만원이 추가</strong>되고, 인구감소지역에서 지역사랑상품권으로 받으면 월 1만원이 더해집니다(지자체별 상이).</li>
+<li>이미 받고 있다면 연령 확대분은 별도 재신청 없이 이어집니다.</li>
+</ul>
+
+<h2>세 가지를 합치면</h2>
+<table>
+<tr><th>구분</th><th>첫째</th><th>둘째 이상</th></tr>
+<tr><td>첫해(0세) 총액</td><td><strong>1,520만원</strong></td><td><strong>1,620만원</strong></td></tr>
+<tr><td>0~2세 누적</td><td><strong>2,240만원</strong></td><td><strong>2,340만원</strong></td></tr>
+</table>
+<p>첫해 기준으로 첫만남이용권 200만 + 부모급여 1,200만 + 아동수당 120만 = <strong>1,520만원</strong>입니다. 셋 다 <strong>중복 수급이 가능</strong>하므로 하나를 받는다고 다른 것이 깎이지 않습니다.</p>
+
+<h2>육아휴직급여와도 중복될까</h2>
+<p>됩니다. 위 세 가지는 <strong>아동을 기준으로</strong> 지급되는 복지 급여이고, 육아휴직급여는 <strong>근로자를 기준으로</strong> 고용보험에서 나오는 급여입니다. 재원과 근거 법령이 달라 서로 영향을 주지 않습니다.</p>
+<p>즉 육아휴직 중에도 부모급여·아동수당은 그대로 나옵니다. 실제 가계 수입을 가늠하려면 <strong>둘을 합쳐서</strong> 봐야 하는데, 육아휴직급여 쪽은 통상임금·사용 시점·부부 조합에 따라 크게 달라지므로 <a href="index.html#calc">계산기로 따로 확인</a>하는 편이 정확합니다.</p>
+
+<h2>신청, 한 번에 끝내는 법</h2>
+<ul>
+<li><strong>행복출산 원스톱 서비스</strong> — 출생신고와 동시에 첫만남이용권·부모급여·아동수당을 한 번에 신청합니다. 주민센터 방문 또는 정부24에서 가능합니다.</li>
+<li>산후조리 등으로 방문이 어렵다면 <strong>온라인 출생신고</strong>와 함께 처리할 수 있습니다.</li>
+<li>가장 흔한 실수는 <strong>60일을 넘기는 것</strong>입니다. 출생신고를 미루면 지원금 신청도 같이 밀립니다.</li>
+</ul>
+
+<h2>자주 묻는 질문</h2>
+<p><strong>Q. 어린이집 보내면 부모급여를 못 받나요?</strong><br>못 받는 게 아니라 방식이 바뀝니다. 보육료 바우처로 먼저 지급되고, 부모급여가 더 크면 차액이 현금으로 들어옵니다.</p>
+<p><strong>Q. 둘째는 얼마나 더 받나요?</strong><br>첫만남이용권만 100만원 차이가 납니다(200만 → 300만). 부모급여·아동수당은 자녀 순위와 무관하게 동일합니다.</p>
+<p><strong>Q. 소득이 높으면 줄어드나요?</strong><br>세 가지 모두 소득·재산 조건이 없습니다. 다만 저소득층 기저귀·분유 지원 등 별도 사업은 소득 기준이 있습니다.</p>
+<p><strong>Q. 아동수당은 언제까지 받나요?</strong><br>2026년 기준 만 9세 미만까지입니다. 2030년까지 매년 1세씩 올라가므로 지금 태어난 아이는 더 오래 받게 됩니다.</p>
+
+  </article>
+  <div class="cta">
+    <h3>육아휴직급여까지 합쳐서 보세요</h3>
+    <p>지원금은 아이 기준, 육아휴직급여는 근로자 기준으로 별도 지급됩니다. 실제 가계 수입은 둘을 합쳐야 보입니다.</p>
+    <a href="index.html#calc">육아휴직급여 계산기 열기 →</a>
+  </div>
+  <div class="other">
+    <h3>다른 가이드</h3>
+    <a href="guide01-66-sunchak.html">GUIDE 01 — 6+6 부모육아휴직제, 순차 사용의 진실</a>
+    <a href="guide02-wolcha-sanghan.html">GUIDE 02 — 7개월차부터 급여가 줄어드는 이유</a>
+    <a href="guide03-tongsang-imgeum.html">GUIDE 03 — 통상임금, 뭐가 포함되고 뭐가 빠질까</a>
+    <a href="guide04-sahu-jigeupgeum.html">GUIDE 04 — 사후지급금 폐지, 나도 해당될까</a>
+    <a href="guide05-18gaewol-yeonjang.html">GUIDE 05 — 육아휴직 1년 6개월, 아무나 못 쓴다</a>
+    <a href="guide06-sincheong-bangbeob.html">GUIDE 06 — 급여 신청, 자동으로 안 들어옵니다</a>
+    <a href="guide07-appa-yukah.html">GUIDE 07 — 아빠 육아휴직 6개월, 얼마 받을까</a>
+    <a href="guide08-4daeboheom.html">GUIDE 08 — 육아휴직 중 국민연금·건강보험은 어떻게 되나</a>
+    <a href="guide09-chulsan-hyuga.html">GUIDE 09 — 출산휴가 90일에서 육아휴직으로 이어 쓰기</a>
+    <a href="guide10-dancuk-bigyo.html">GUIDE 10 — 육아휴직 대신 근로시간 단축? 급여로 비교</a>
+  </div>
+  <div class="disclaimer">⚠️ 본 글은 일반적인 제도 정보를 다루며, 지자체별 추가 지원이나 개인별 사실관계에 따라 실제 수급액이 달라질 수 있습니다. 고시 금액은 변동되니 실제 신청 전에는 복지로(☎129) 또는 주민센터에 확인하시기 바랍니다.</div>
+</div>
+<footer><div class="wrap"><nav aria-label="다른 무료 계산기" data-labnav="1" style="margin-bottom:14px;display:flex;gap:16px;flex-wrap:wrap;justify-content:center;font-weight:800"><a href="https://simon6542.github.io/margin-lab/" style="color:#ff4d00;text-decoration:none">아마존 마진 계산기</a><a href="https://simon6542.github.io/loan-lab/" style="color:#ff4d00;text-decoration:none">대출 갈아타기 계산기</a><a href="https://simon6542.github.io/" style="color:#ff4d00;text-decoration:none">전체 계산기 →</a></nav>육아랩 © 2026 · 본 사이트의 모든 내용은 참고용이며 법적 효력이 없습니다</div></footer>
+
+<script>
+(function () {
+  var state = { order: 1, span: 1 };
+
+  function won(man) {
+    return man.toLocaleString('ko-KR') + '만원';
+  }
+
+  function bind(id, key) {
+    var box = document.getElementById(id);
+    box.addEventListener('click', function (e) {
+      var btn = e.target.closest('button');
+      if (!btn) return;
+      state[key] = parseInt(btn.dataset.v, 10);
+      Array.prototype.forEach.call(box.querySelectorAll('button'), function (b) {
+        b.setAttribute('aria-pressed', b === btn ? 'true' : 'false');
+      });
+      render();
+    });
+  }
+
+  function render() {
+    var first = state.order === 1 ? 200 : 300;          // 첫만남이용권 1회
+    var parent, child, label;
+
+    if (state.span === 1) {                              // 첫해(0세)
+      parent = 100 * 12;                                 // 만 0세 월 100만
+      child = 10 * 12;                                   // 아동수당 월 10만
+      label = '첫해 총액';
+      document.getElementById('lblParent').textContent = '(0세 · 월 100만 × 12)';
+      document.getElementById('lblChild').textContent = '(월 10만 × 12)';
+    } else {                                             // 0~2세 누적(24개월)
+      parent = 100 * 12 + 50 * 12;                       // 0세 1,200 + 1세 600
+      child = 10 * 24;                                   // 24개월
+      label = '0~2세 누적 총액';
+      document.getElementById('lblParent').textContent = '(0세 1,200 + 1세 600)';
+      document.getElementById('lblChild').textContent = '(월 10만 × 24)';
+    }
+
+    document.getElementById('lblFirst').textContent = state.order === 1 ? '(첫째)' : '(둘째 이상)';
+    document.getElementById('vFirst').textContent = won(first);
+    document.getElementById('vParent').textContent = won(parent);
+    document.getElementById('vChild').textContent = won(child);
+    document.getElementById('lblTotal').textContent = label;
+    document.getElementById('vTotal').textContent = won(first + parent + child);
+  }
+
+  bind('optOrder', 'order');
+  bind('optSpan', 'span');
+  render();
+})();
+</script>
+</body>
+</html>

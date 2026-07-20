@@ -199,6 +199,13 @@
 
   footer { border-top: 2px solid var(--ink); padding: 28px 0; margin-top: 48px; font-size: 13px; color: var(--mid); }
 </style>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-5GXQXQES4V"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-5GXQXQES4V');
+</script>
 </head>
 <body>
 
@@ -634,6 +641,22 @@ function calculate() {
   if (p.couple && !p.spWage) { alert('배우자 통상임금을 입력해주세요.'); return; }
 
   const r = calcHousehold(p);
+
+  if (typeof gtag === 'function') {
+    gtag('event', 'calc_complete', {
+      mode: p.couple ? 'couple' : 'single',
+      sixsix: p.couple ? (r.eligible ? 'applied' : 'not_applied') : 'n/a',
+      matched_months: p.couple && r.eligible ? String(r.matched) : '0',
+      months_band: p.meMonths <= 3 ? 'under_3m'
+        : p.meMonths <= 6 ? '4_6m'
+        : p.meMonths <= 9 ? '7_9m' : '10_12m',
+      single_parent: p.singleParent ? 'yes' : 'no',
+      // r.total 단위는 '만원' (fmtMan으로 표시) — 원 단위 아님에 주의
+      total_band: r.total < 1000 ? 'under_1000man'
+        : r.total < 2000 ? '1000_2000man'
+        : r.total < 4000 ? '2000_4000man' : 'over_4000man'
+    });
+  }
 
   // 결과 히어로
   document.getElementById('result').style.display = 'block';
